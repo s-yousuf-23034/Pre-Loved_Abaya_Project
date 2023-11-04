@@ -25,8 +25,8 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  image: {
-    type: String,
+  productImages: {
+    type: Array, 
     required: true,
   },
   price: {
@@ -54,4 +54,10 @@ const ProductSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
-module.exports = mongoose.model("Product", ProductSchema);
+const productModel = mongoose.model("Product", ProductSchema);
+
+module.exports = {
+  ProductSizes,
+  ProductConditions,
+  productModel,
+};

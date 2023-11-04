@@ -1,17 +1,26 @@
 const express = require("express");
 const auth = require("../middlewares/auth");
 const productRouter = express.Router();
-
-const {
-    getProducts,
-    createProduct,
-    updateProduct,
-    deleteProduct, 
-    getProductDetails,
-    searchProducts,
-  } = require("../controllers/productController");
+const {getProducts, createProduct, updateProduct, deleteProduct, getProductDetails,
+     searchProducts} = require("../controllers/productController");
 const userModel = require('../models/user');
 const {addToCart, removeFromCart, getUserCart, calculateTotalPrice} = require('../controllers/cartController')
+const {createProductReview} = require('../controllers/reviewController');
+const {
+    placeOrder,
+    updateOrder,
+    getOrderDetails,
+    getOrderHistory
+} = require("../controllers/orderController");
+
+const orderRouter = express.Router();
+
+const upload = require("../productMulterConfig");
+const bodyParser = require("body-parser");
+// const objectId = mongoose.Types.ObjectId(); // Generate a new ObjectID
+
+productRouter.use(bodyParser.json());
+
 
 //restriction for user role
 const checkRole = (roles) => {
@@ -39,17 +48,29 @@ const checkRole = (roles) => {
 };
 
 productRouter.get("/", auth, getProducts);
-productRouter.get("/:productId", auth, getProductDetails);
+productRouter.get("/product-details/:productId", auth, getProductDetails);
+
+productRouter.post("/create-product", auth, checkRole(["seller"]),upload.array('productImages', 3), createProduct);
+
+productRouter.delete("/delete-product/:id", auth, checkRole(["seller"]), deleteProduct);
 productRouter.get("/search-products", searchProducts);
 
-productRouter.post("/", auth, checkRole(["seller"]),  createProduct);
+productRouter.put("/update-product/:id", auth, checkRole(["seller"]), updateProduct);
 
-productRouter.delete("/:id", auth, checkRole(["seller"]), deleteProduct);
-
-productRouter.put("/:id", auth, checkRole(["seller"]), updateProduct);
+//add to cart
 productRouter.post('/add-to-cart/:productId', auth, addToCart);
 productRouter.delete('/remove-from-cart/:productId', auth, removeFromCart);
 productRouter.get('/cart', auth, getUserCart);
 productRouter.get('/cart/total-price', auth, calculateTotalPrice);
 
+
+//review
+productRouter.post('/reviews/leave', createProductReview)
+
+
+//order
+productRouter.post('/add-to-cart/place-order', auth, placeOrder);
+productRouter.put('/add-to-cart/update-order', auth, updateOrder);
+productRouter.get('/order/:orderId', auth, getOrderDetails);
+productRouter.get('/order-history', auth, getOrderHistory);
 module.exports = productRouter;

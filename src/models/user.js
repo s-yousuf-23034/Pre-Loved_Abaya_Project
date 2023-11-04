@@ -26,11 +26,16 @@ const UserSchema = mongoose.Schema({
     lastName: {
         type: String,
     },
+    contactNumber: {
+        type: String,
+        
+    },
     userImage: {
         type: String,
         default: null,
     },
-    ContactNumber: {
+    
+    userType: {
         type: String,
     },
     
